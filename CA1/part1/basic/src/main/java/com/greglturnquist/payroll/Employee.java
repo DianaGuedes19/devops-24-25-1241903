@@ -28,17 +28,22 @@ import javax.persistence.Id;
 @Entity // <1>
 public class Employee {
 
-	private @Id @GeneratedValue Long id; // <2>
+	private @Id
+	@GeneratedValue Long id; // <2>
 	private String firstName;
 	private String lastName;
 	private String description;
+	private Integer jobYears;
 
-	private Employee() {}
+	private Employee() {
+	}
 
-	public Employee(String firstName, String lastName, String description) {
+	public Employee(String firstName, String lastName, String description, Integer jobYears) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.description = description;
+		setJobYears(jobYears);
+
 	}
 
 	@Override
@@ -47,15 +52,16 @@ public class Employee {
 		if (o == null || getClass() != o.getClass()) return false;
 		Employee employee = (Employee) o;
 		return Objects.equals(id, employee.id) &&
-			Objects.equals(firstName, employee.firstName) &&
-			Objects.equals(lastName, employee.lastName) &&
-			Objects.equals(description, employee.description);
+				Objects.equals(firstName, employee.firstName) &&
+				Objects.equals(lastName, employee.lastName) &&
+				Objects.equals(description, employee.description) &&
+				Objects.equals(jobYears, employee.jobYears);
 	}
 
 	@Override
 	public int hashCode() {
 
-		return Objects.hash(id, firstName, lastName, description);
+		return Objects.hash(id, firstName, lastName, description, jobYears);
 	}
 
 	public Long getId() {
@@ -90,14 +96,19 @@ public class Employee {
 		this.description = description;
 	}
 
-	@Override
-	public String toString() {
-		return "Employee{" +
-			"id=" + id +
-			", firstName='" + firstName + '\'' +
-			", lastName='" + lastName + '\'' +
-			", description='" + description + '\'' +
-			'}';
+	public Integer getJobYears() {
+		return jobYears;
 	}
+
+	public void setJobYears(Integer jobYears) {
+		if (isjobYearsInvalid(jobYears)) {
+			throw new IllegalArgumentException("Job years is not valid.");
+		}
+		this.jobYears = jobYears;
+	}
+	public boolean isjobYearsInvalid(Integer jobYears){
+		return jobYears == null || jobYears<0 ;
+	}
+
 }
 // end::code[]
