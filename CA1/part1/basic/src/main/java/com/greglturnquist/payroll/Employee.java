@@ -35,7 +35,7 @@ public class Employee {
 	private String description;
 	private Integer jobYears;
 
-	private Employee() {
+	public  Employee() {
 	}
 
 	public Employee(String firstName, String lastName, String description, Integer jobYears) {
