@@ -40,10 +40,14 @@ public class Employee {
 	}
 
 	public Employee(String firstName, String lastName, String description, Integer jobYears) {
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.description = description;
-		setJobYears(jobYears);
+		if(!isParametersInvalid(firstName)){
+			this.firstName = firstName;}
+		if(!isParametersInvalid(lastName)){
+			this.lastName = lastName;}
+		if(!isParametersInvalid(description)){
+			this.description = description; }
+		if(!isjobYearsInvalid(jobYears)){
+			this.jobYears = jobYears; }
 
 	}
 
@@ -102,13 +106,14 @@ public class Employee {
 	}
 
 	public void setJobYears(Integer jobYears) {
-		if (isjobYearsInvalid(jobYears)) {
-			throw new IllegalArgumentException("Job years is not valid.");
-		}
 		this.jobYears = jobYears;
 	}
 	public boolean isjobYearsInvalid(Integer jobYears){
 		return jobYears == null || jobYears<0 ;
+	}
+
+	public boolean isParametersInvalid (String parameters) {
+		return parameters == null | parameters.isBlank();
 	}
 
 }

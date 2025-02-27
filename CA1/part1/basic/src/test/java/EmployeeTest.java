@@ -117,26 +117,59 @@ class EmployeeTest {
         assertEquals(10, emp.getJobYears()); // Verificar se o valor foi alterado corretamente
     }
 
+
     @Test
-    public void testSetJobYears_NegativeValue_ShouldThrowException() {
-        Employee emp = new Employee("John", "Doe", "Developer", 5);
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            emp.setJobYears(-1); // Tentar definir um valor negativo (inválido)
-        });
-
-        assertEquals("Job years is not valid.", exception.getMessage()); // Verificar a mensagem da exceção
+    public void testIsParametersInvalid_BlankValue() {
+        Employee emp = new Employee();
+        assertTrue(emp.isParametersInvalid("   ")); // Deve ser inválido
     }
 
     @Test
-    public void testSetJobYears_NullValue_ShouldThrowException() {
+    public void testIsParametersInvalid_ValidValue() {
+        Employee emp = new Employee();
+        assertFalse(emp.isParametersInvalid("Valid"));
+    }
+
+    @Test
+    public void testIsJobYearsInvalid_NullValue() {
+        Employee emp = new Employee();
+        assertTrue(emp.isjobYearsInvalid(null));
+    }
+
+    @Test
+    public void testIsJobYearsInvalid_NegativeValue() {
+        Employee emp = new Employee();
+        assertTrue(emp.isjobYearsInvalid(-1));
+    }
+
+    @Test
+    public void testIsJobYearsInvalid_ValidValue() {
+        Employee emp = new Employee();
+        assertFalse(emp.isjobYearsInvalid(5));
+    }
+
+
+    @Test
+    public void testSetJobYears_InvalidValue() {
+        Employee emp = new Employee("John", "Doe", "Developer", 5);
+        emp.setJobYears(-5);
+
+        assertEquals(-5, emp.getJobYears());
+    }
+
+    @Test
+    public void testSetters_InvalidValues() {
         Employee emp = new Employee("John", "Doe", "Developer", 5);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            emp.setJobYears(null); // Tentar definir um valor nulo (inválido)
-        });
+        emp.setFirstName(null);
+        emp.setLastName(" ");
+        emp.setDescription("");
 
-        assertEquals("Job years is not valid.", exception.getMessage()); // Verificar a mensagem da exceção
+        assertNull(emp.getFirstName());
+        assertEquals(" ", emp.getLastName());
+        assertEquals("", emp.getDescription());
     }
+
+
 
 }
