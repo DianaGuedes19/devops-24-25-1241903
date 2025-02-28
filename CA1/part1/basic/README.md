@@ -193,7 +193,7 @@ Steps:
 ```sh
    git add .
    git commit -m "Added ReadMe file and finish the first week"
-   git push origin master
+   git push origin main
    git tag v1.2.0
    git push origin v1.2.0
 ```
