@@ -35,21 +35,27 @@ public class Employee {
 	private String lastName;
 	private String description;
 	private Integer jobYears;
+	private String email;
 
 	public  Employee() {
 	}
 
-	public Employee(String firstName, String lastName, String description, Integer jobYears) {
+	public Employee(String firstName, String lastName, String description, String email, Integer jobYears) {
 		if(!isParametersInvalid(firstName)){
 			this.firstName = firstName;}
 		if(!isParametersInvalid(lastName)){
 			this.lastName = lastName;}
 		if(!isParametersInvalid(description)){
 			this.description = description; }
+		if (!isParametersInvalid(email)){
+			this.email = email;
+		}
 		if(!isjobYearsInvalid(jobYears)){
 			this.jobYears = jobYears; }
 
 	}
+
+
 
 	@Override
 	public boolean equals(Object o) {
@@ -60,13 +66,14 @@ public class Employee {
 				Objects.equals(firstName, employee.firstName) &&
 				Objects.equals(lastName, employee.lastName) &&
 				Objects.equals(description, employee.description) &&
-				Objects.equals(jobYears, employee.jobYears);
+				Objects.equals(jobYears, employee.jobYears)&&
+				Objects.equals(email, employee.email);
 	}
 
 	@Override
 	public int hashCode() {
 
-		return Objects.hash(id, firstName, lastName, description, jobYears);
+		return Objects.hash(id, firstName, lastName, description, jobYears,email);
 	}
 
 	public Long getId() {
@@ -113,7 +120,7 @@ public class Employee {
 	}
 
 	public boolean isParametersInvalid (String parameters) {
-		return parameters == null | parameters.isBlank();
+		return parameters == null || parameters.isBlank();
 	}
 
 }
