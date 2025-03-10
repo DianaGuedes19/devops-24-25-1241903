@@ -170,6 +170,34 @@ class EmployeeTest {
         assertEquals("", emp.getDescription());
     }
 
+    @Test
+    public void testGetEmail() {
+        Employee emp = new Employee("John", "Doe", "Developer", "john.doe@example.com", 5);
+        assertEquals("john.doe@example.com", emp.getEmail());
+    }
+
+    @Test
+    public void testSetEmail_ValidValue() {
+        Employee emp = new Employee("John", "Doe", "Developer", "old.email@example.com", 5);
+        emp.setEmail("new.email@example.com");
+        assertEquals("new.email@example.com", emp.getEmail());
+    }
+
+    @Test
+    public void testSetEmail_NullValue() {
+        Employee emp = new Employee("John", "Doe", "Developer", "old.email@example.com", 5);
+        emp.setEmail(null);
+        assertNull(emp.getEmail());
+    }
+
+    @Test
+    public void testSetEmail_BlankValue() {
+        Employee emp = new Employee("John", "Doe", "Developer", "old.email@example.com", 5);
+        emp.setEmail("");
+        assertEquals("", emp.getEmail());
+    }
+
+
 
 
 

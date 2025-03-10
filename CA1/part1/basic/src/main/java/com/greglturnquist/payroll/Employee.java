@@ -123,5 +123,12 @@ public class Employee {
 		return parameters == null || parameters.isBlank();
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 }
 // end::code[]
