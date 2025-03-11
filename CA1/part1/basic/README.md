@@ -279,7 +279,7 @@ This assignment successfully demonstrated core DevOps practices, including:
 - **Frontend integration**, ensuring `jobYears` was displayed correctly on the UI.
 
 
-**Part 2: Branch-Based Development**
+### Part 2: Branch-Based Development
 
 ### Objectives and Requirements
 
