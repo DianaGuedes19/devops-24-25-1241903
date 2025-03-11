@@ -10,6 +10,46 @@
 
 **Institution:** Instituto Superior de Engenharia/ Instituto Politécnico do Porto
 
+# Table of Contents
+
+- [Introduction](#introduction)
+- [Part 1: Initial Setup](#part-1-initial-setup)
+   - [Objectives and Requirements](#objectives-and-requirements)
+   - [Creating My Repository](#creating-my-repository)
+   - [Cloning the Repository](#cloning-the-repository)
+   - [Running the Project Locally](#running-the-project-locally)
+   - [Creating the .gitignore File](#creating-the-gitignore-file)
+   - [Committing the Initial Version](#committing-the-initial-version)
+   - [Versioning with Git Tags](#versioning-with-git-tags)
+- [Part 2: Adding a New Feature](#part-2-adding-a-new-feature)
+   - [Implementing jobYears Field](#implementing-jobyears-field)
+   - [Unit Testing](#unit-testing)
+   - [Debugging](#debugging)
+   - [Commit History](#commit-history)
+   - [Committing and Tagging the Feature](#committing-and-tagging-the-feature)
+- [Part 3: Finalizing the Assignment](#part-3-finalizing-the-assignment)
+   - [Repository Marking](#repository-marking)
+- [Part 2: Branch-Based Development](#part-2-branch-based-development)
+   - [Objectives and Requirements](#objectives-and-requirements)
+   - [Key Developments](#key-developments)
+   - [Working with the Main Branch](#working-with-the-main-branch)
+   - [Developing Features in Separate Branches](#developing-features-in-separate-branches)
+   - [Integrating and Testing the Email Field](#integrating-and-testing-the-email-field)
+   - [Merging the Feature into Main](#merging-the-feature-into-main)
+   - [Creating a Bug Fix Branch](#creating-a-bug-fix-branch)
+   - [Assignment Completion](#assignment-completion)
+- [Final Outcomes](#final-outcomes)
+   - [Implementation](#implementation)
+   - [Branch Management](#branch-management)
+   - [Tagging Significant Milestones](#tagging-significant-milestones)
+   - [Issue Tracking and Management](#issue-tracking-and-management)
+- [Alternative Solution](#alternative-solution)
+   - [Exploring an Alternative to Git](#exploring-an-alternative-to-git)
+   - [Comparison of SVN and Git](#comparison-of-svn-and-git)
+   - [Applying SVN to This Assignment](#applying-svn-to-this-assignment)
+- [Conclusion](#conclusion)
+
+
 ## Introduction
 This document addresses the Version Control with Git assignment for the DevOps discipline. The work is organized into two main parts: first, a straightforward use of version control without branching, and second, an extension that introduces new features and fixes bugs through branching. In the Final Results section, you’ll find a visual representation of how the application has evolved after merging all enhancements and corrections. Additionally, an Alternative Solution is explored—Subversion (SVN)—to discuss its characteristics and evaluate its suitability for the objectives of this assignment.
 
@@ -75,9 +115,7 @@ Created the file using the terminal:
 touch .gitignore
 ```
 
-Generated an initial configuration using Gitignore.io:
-
-# Created by https://www.toptal.com/developers/gitignore/api/node,react,maven,java
+Generated an initial configuration using Gitignore.io
 
 Manually added additional entries to ignore logs, IDE-specific files, and system-generated artifacts:
 
@@ -400,4 +438,84 @@ Throughout development, issues were created in GitHub to document and track prob
 ![Issues](src/main/java/images/issues.png)
 
 Issues are a valuable tool for project management, serving multiple purposes, including bug tracking, feature requests, and task management. They can be assigned to team members, categorized using labels, and linked to specific commits or pull requests. Moving forward, the objective is to leverage issues throughout the entire development cycle, improving task organization, progress tracking, and collaboration, particularly in team-based environments.
+
+### Alternative Solution
+
+### Exploring an Alternative to Git
+
+For version control beyond Git, **Subversion (SVN)** offers a centralized approach, differing from Git's decentralized system. This section contrasts the features of **SVN vs. Git** and explains how SVN can be applied to accomplish the objectives of this assignment.
+
+### **Comparison of SVN and Git**
+
+| Feature | SVN | Git |
+|---------|----|-----|
+| **Architecture** | Centralized, relying on a single repository as the source of truth. | Distributed, allowing multiple full copies of the repository for redundancy and collaboration. |
+| **Versioning Model** | Assigns incremental version numbers per file. | Uses a snapshot-based model, tracking the entire repository at each commit. |
+| **Branching & Merging** | Supports branching and merging but requires more manual intervention. | Provides seamless branching and merging, optimized for parallel development. |
+| **Handling Binary Files** | Efficiently manages binary files using delta storage to minimize space. | Stores full copies of binary files with each change, potentially increasing repository size. |
+
+### **Applying SVN to This Assignment**
+
+The following outlines how SVN could be utilized in a workflow similar to Git’s:
+
+#### **1. Initial Repository Setup**
+Establishing a centralized repository to store the **Tutorial React.js and Spring Data REST Application**:
+
+```sh
+# Create a new SVN repository
+svnadmin create /path/to/svn_repository
+
+# Import the application into SVN
+cd /path/to/TutorialReactSpringDataREST
+svn import . file:///path/to/svn_repository/my_project -m "First commit"
+```
+
+#### **2. Developing Features Using Branches**
+To manage new features, branches can be created in SVN:
+
+```sh
+# Create a branch for the new feature
+svn copy file:///path/to/svn_repository/my_project/trunk \
+         file:///path/to/svn_repository/my_project/branches/feature-branch \
+         -m "Creating branch"
+```
+
+#### **3. Committing Changes & Tagging Releases**
+Changes are committed to maintain a clear development history, while stable versions are tagged:
+
+```sh
+# Commit changes within the feature branch
+cd /path/to/working_copy/feature-branch
+svn commit -m "Implemented new feature"
+
+# Tag a stable release
+svn copy file:///path/to/svn_repository/my_project/trunk \
+         file:///path/to/svn_repository/my_project/tags/v1.0 \
+         -m "Tagging version v1.0"
+```
+
+#### **4. Merging Features into the Main Branch**
+After thorough testing, features can be merged back into the trunk:
+
+```sh
+# Merge the feature branch into the trunk
+svn merge --reintegrate file:///path/to/svn_repository/my_project/branches/feature-branch /path/to/working_copy/trunk
+svn commit -m "Merged branch"
+```
+
+By leveraging SVN’s features, a structured workflow similar to Git can be established, demonstrating the adaptability of version control systems in software development.
+
+---
+
+### **Conclusion**
+
+Completing the **Version Control with Git** assignment has deepened my understanding of version control methodologies and their significance in software development. **Part 1** introduced fundamental concepts, emphasizing direct modifications to the main branch and best practices for committing and tagging.
+
+The transition to **Part 2**, where branching was introduced, provided insight into managing feature development and bug fixes efficiently, reinforcing the importance of isolating changes for better version tracking. The final results illustrate the practical impact of these principles, showcasing improvements in the application’s functionality.
+
+Additionally, **GitHub Issues** were utilized to document and resolve problems systematically, offering a structured problem-solving approach that highlights the usefulness of issue tracking in development projects.
+
+The comparison of **SVN as an alternative to Git** offered a broader perspective on version control strategies. By examining SVN’s centralized nature against Git’s distributed model, I gained a better understanding of how different systems can be adapted to meet diverse project needs, highlighting the flexibility required in DevOps practices.
+
+This assignment has not only strengthened my **technical proficiency with Git** but also emphasized the crucial role of version control in fostering collaboration, maintaining code integrity, and efficiently managing project evolution.
 
