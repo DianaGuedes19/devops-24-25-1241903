@@ -15,7 +15,6 @@
 - [Introduction](#introduction)
 - [Part 1: Initial Setup](#part-1-initial-setup)
    - [Objectives and Requirements](#objectives-and-requirements)
-   - [Creating My Repository](#creating-my-repository)
    - [Cloning the Repository](#cloning-the-repository)
    - [Running the Project Locally](#running-the-project-locally)
    - [Creating the .gitignore File](#creating-the-gitignore-file)
@@ -29,7 +28,7 @@
    - [Committing and Tagging the Feature](#committing-and-tagging-the-feature)
 - [Part 3: Finalizing the Assignment](#part-3-finalizing-the-assignment)
    - [Repository Marking](#repository-marking)
-- [Part 2: Branch-Based Development](#part-2-branch-based-development)
+- [Part 4: Branch-Based Development](#part-4-branch-based-development)
    - [Objectives and Requirements](#objectives-and-requirements)
    - [Key Developments](#key-developments)
    - [Working with the Main Branch](#working-with-the-main-branch)
@@ -40,7 +39,6 @@
    - [Assignment Completion](#assignment-completion)
 - [Final Outcomes](#final-outcomes)
    - [Implementation](#implementation)
-   - [Branch Management](#branch-management)
    - [Tagging Significant Milestones](#tagging-significant-milestones)
    - [Issue Tracking and Management](#issue-tracking-and-management)
 - [Alternative Solution](#alternative-solution)
@@ -317,7 +315,7 @@ This assignment successfully demonstrated core DevOps practices, including:
 - **Frontend integration**, ensuring `jobYears` was displayed correctly on the UI.
 
 
-### Part 2: Branch-Based Development
+### Part 4: Branch-Based Development
 
 ### Objectives and Requirements
 
