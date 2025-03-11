@@ -278,5 +278,93 @@ This assignment successfully demonstrated core DevOps practices, including:
 - **Application debugging**, identifying and resolving issues at both server and client levels.
 - **Frontend integration**, ensuring `jobYears` was displayed correctly on the UI.
 
-By following structured DevOps principles, the project maintains high reproducibility, efficiency, and maintainability.
+
+**Part 2: Branch-Based Development**
+
+### Objectives and Requirements
+
+This section focuses on utilizing branches for feature development and bug fixes, highlighting the importance of isolated workspaces and efficient merging techniques.
+
+Key requirements include creating dedicated branches for new functionalities or corrections, ensuring that modifications remain separate from the main codebase until they are ready for integration.
+
+The section concludes with tagging the main branch following successful merges to indicate new application versions, demonstrating effective branch organization and version control practices.
+
+### Key Developments
+
+In this phase, development was structured around branching strategies to introduce new features and address existing issues while maintaining the stability of the main branch. This ensured that stable releases of the **Tutorial React.js and Spring Data REST Application** remained unaffected by ongoing changes.
+
+Since the approach for implementing new features and resolving bugs aligns with the methodology used in Part 1, repetitive code demonstrations have been omitted. The primary distinction in this section is the incorporation of branching. Below are the core steps:
+
+#### Working with the Main Branch
+
+To confirm the correct working branch, particularly when preparing stable releases, I used the `git branch` command. This was a critical step in validating the current branch, which is marked with an asterisk (*) in the command output.
+
+#### Developing Features in Separate Branches
+
+During the implementation of an **email field**, effective branch management played a crucial role. The development began by creating a dedicated feature branch and switching to it for all related updates. The process followed these steps:
+
+1. A new branch named `email-field` was created to house all developments concerning the email feature.
+2. The active workspace was switched to this branch to commence development.
+3. The `git branch` command was executed again to confirm the switch was successful.
+
+Commands used:
+```sh
+# Create and switch to the feature branch
+git branch email-field
+git checkout email-field
+git branch
+```
+
+#### Integrating and Testing the Email Field
+
+The process of adding and validating the email field mirrored the approach used in **Part 1** for the `jobYears` field. The key steps included:
+
+- **Code Implementation:** Expanding the `Employee` class to include the new `email` field along with appropriate getter and setter methods. The update extended to models, forms, and views, ensuring full integration across both frontend and backend.
+- **Unit Testing:** Writing comprehensive test cases to confirm correct creation of `Employee` instances with the email field, enforcing validation rules such as non-null and properly formatted values.
+- **Debugging:** Conducting thorough debugging on both the server and client sides to identify and fix any issues introduced by the new feature.
+
+#### Merging the Feature into Main
+
+Once development of the email field was complete, a structured process was followed to merge the changes into the main branch and update the application's version:
+
+1. Committing finalized modifications.
+2. Pushing the feature branch to the remote repository.
+3. Switching to the main branch and performing a **no-fast-forward** merge.
+4. Updating the remote main branch.
+5. Tagging the new version to mark this release.
+
+Commands executed:
+```sh
+# Commit the new feature
+git add .
+git commit -m "Added new field called email in Employee + tests in EmployeeTest and DatabaseLoader.java"
+git push -u origin email-field
+
+# Switch to main branch and merge
+git checkout main
+git merge --no-ff email-field
+
+# Push the merged changes to update the main branch
+git push
+
+# Tag the new version and push it
+git tag -a v1.3.0 
+git push origin v1.3.0
+```
+
+#### Creating a Bug Fix Branch
+
+To resolve an issue with email validation in the `Employee` class, a separate branch named `fix-invalid-email` was created following the standard workflow. The process adhered to the structured development, testing, and merging practices used previously, ensuring stability and code integrity.
+
+The primary fix involved enhancing the `Employee` class with validation logic to enforce the presence of an `@` symbol in email addresses:
+```java
+public boolean isEmailInvalid(String email){
+   return  email == null || email.isBlank() || !email.contains("@") ;
+}
+```
+
+### Assignment Completion
+
+After implementing and validating the fix, the changes were merged into the main branch. The application version was then updated to `v1.3.1` to reflect this minor improvement. To mark the end of the assignment, the repository was tagged as `ca1-part2` to indicate the completion of this phase.
+
 
