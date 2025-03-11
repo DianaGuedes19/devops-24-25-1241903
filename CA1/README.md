@@ -517,3 +517,195 @@ The comparison of **SVN as an alternative to Git** offered a broader perspective
 
 This assignment has not only strengthened my **technical proficiency with Git** but also emphasized the crucial role of version control in fostering collaboration, maintaining code integrity, and efficiently managing project evolution.
 
+
+**CA1 Part 2: Build Tools with Gradle – Technical Report**
+
+## **Table of Contents**
+
+- [Introduction](#introduction)
+- [Environment Setup](#environment-setup)
+- [Gradle Basic Demo](#gradle-basic-demo)
+- [Creating a New Task](#creating-a-new-task)
+- [Adding a Unit Test](#adding-a-unit-test)
+- [Defining a Copy Task](#defining-a-copy-task)
+- [Implementing a Zip Task](#implementing-a-zip-task)
+- [Conclusion](#conclusion)
+
+---
+
+## **Introduction**
+
+This report presents the work completed for the **Build Tools with Gradle** assignment as part of the **DevOps** course. The main objective was to explore Gradle’s practical functionalities, beginning with basic configurations and extending to creating custom tasks, unit testing, and automating file handling operations.
+
+Following the **Environment Setup**, the report walks through the **Gradle Basic Demo**, where a multi-threaded chat server was built and executed. From there, additional Gradle tasks were integrated, including a task for server automation, unit testing implementation, and file operations such as copying and zipping project files. The **Conclusion** section reflects on key learning takeaways and practical applications of Gradle for software development workflows.
+
+---
+
+## **Environment Setup**
+
+The first step involved setting up a structured working directory (`/CA1/part2`) and cloning the required project repository from Bitbucket. The provided repository already contained a `build.gradle` file along with the Gradle Wrapper, ensuring consistency in the development environment.
+
+To confirm a successful Gradle installation, I ran:
+```sh
+gradle -v
+```
+Once the project was integrated into an IDE supporting Gradle, I verified the setup by running a basic Gradle build process. This preliminary step was crucial in ensuring that the project dependencies were correctly configured and that the build environment was stable before proceeding with further development.
+
+---
+
+## **Gradle Basic Demo**
+
+The **Gradle Basic Demo** served as an introduction to Gradle’s build and execution capabilities by running a **multi-threaded chat server** supporting multiple simultaneous connections.
+
+### **Build Process**
+The following command was used to compile and package the project:
+```sh
+./gradlew build
+```
+![Gradle Build](part2/images/gradleBuild.png)
+This generated an executable `.jar` file, confirming that the build process was successfully completed.
+
+### **Starting the Server**
+To launch the chat server, the following command was executed:
+```sh
+java -cp build/libs/basic_demo-0.1.0.jar basic_demo.ChatServerApp 59001
+```
+![Server Start](part2/images/serverStart.png)
+The output confirmed that the server was running and actively waiting for incoming client connections.
+
+### **Client Connections**
+For testing, multiple client instances were connected using:
+```sh
+./gradlew runClient
+```
+Each client was configured to connect to `localhost` on port **59001**, demonstrating the system’s ability to handle concurrent connections.
+
+![Chat Name](part2/images/ChatName.png)
+![Chat Working](part2/images/ChatWorking.png)
+
+---
+
+## **Creating a New Task**
+
+A new Gradle task named **runServer** was added to automate the process of starting the chat server, eliminating the need for manual command-line input.
+
+**Updated `build.gradle` file:**
+```gradle
+task runServer(type: JavaExec, dependsOn: classes) {
+    group = "Chat Application of DevOps"
+    description = "Starts a multi-user chat server that listens on port 59001"
+
+    classpath = sourceSets.main.runtimeClasspath
+
+    mainClass = 'basic_demo.ChatServerApp'
+
+    args '59001'
+}
+```
+
+To verify the implementation, I executed:
+```sh
+./gradlew runServer
+```
+The successful execution confirmed that the task had been correctly integrated into the Gradle build process.
+
+![Server Run](part2/images/runServer.png)
+
+---
+
+## **Adding a Unit Test**
+
+To improve code reliability, a unit test was introduced for the **App class** to verify its behavior. The test was written in `AppTest.java` under `src/test/java/basic_demo/`.
+
+**JUnit Dependency (added to `build.gradle`)**:
+```gradle
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+```
+
+**AppTest.java**:
+```java
+package basic_demo;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class AppTest {
+    @Test
+    public void testAppHasAGreeting() {
+        App classUnderTest = new App();
+        assertNotNull("app should have a greeting", classUnderTest.getGreeting()); }
+}
+```
+To run the test, the following command was executed:
+```sh
+./gradlew test
+```
+The test successfully passed, confirming the correctness of the implementation.
+
+![Gradle Test](part2/images/gradleTest.png)
+---
+
+## **Defining a Copy Task**
+
+A **backup task** was created to **copy** the source files to a designated backup folder, ensuring a safeguard mechanism in case of issues.
+
+**Backup Task Definition (`build.gradle`)**:
+```gradle
+task backup(type: Copy) {
+    group = "Utilities"
+    description = "Creates a backup of the src folder into a new backup folder"
+
+    from 'src'
+    into 'backup'
+}
+```
+To execute the task, I ran:
+```sh
+./gradlew backup
+```
+This operation successfully copied the contents of `src/` to a **backup/** folder in the project directory.
+
+![Gradle Backup](part2/images/gradleBackup.png)
+![Gradle Backup Folder](part2/images/backupAndZipFiles.png)
+---
+
+## **Implementing a Zip Task**
+
+A **zip task** was created to compress the source code into a `.zip` file for distribution and backup purposes.
+
+**Task Definition (`build.gradle`)**:
+```gradle
+task zip(type: Zip) {
+    group = "DevOps"
+    description = "Creates a zip archive of the source code"
+
+    from 'src'
+    destinationDirectory = file('build')
+    archiveFileName = 'src_backup.zip'
+}
+```
+
+To create the zip, the following command was executed:
+```sh
+./gradlew zip
+```
+![Gradle Zip](part2/images/gradleZip.png)
+
+This process successfully generated a `src_backup.zip` file in the **build/** directory.
+
+![Gradle Backup Folder](part2/images/backupAndZipFiles.png)
+---
+
+## **Conclusion**
+
+This assignment provided valuable hands-on experience with Gradle, reinforcing its role as a **powerful build tool**. The tasks performed throughout the project demonstrated Gradle’s capabilities in:
+
+- **Automating build processes** for better efficiency.
+- **Creating custom tasks** to streamline development workflows.
+- **Integrating unit testing** to improve code reliability.
+- **Managing files efficiently** using `Copy` and `Zip` tasks.
+
+By implementing **custom Gradle tasks**, such as `runServer`, `backup`, and `zip`, the project gained increased automation, flexibility, and maintainability. The ability to define and execute Gradle tasks tailored to project-specific requirements highlights its adaptability in real-world software development.
+
+This experience has strengthened my understanding of build automation, dependency management, and task execution in Gradle, making it a valuable skill for future DevOps and software engineering projects.
+
