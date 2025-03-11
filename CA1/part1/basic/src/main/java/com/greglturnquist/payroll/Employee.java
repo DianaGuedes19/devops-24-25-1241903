@@ -47,7 +47,7 @@ public class Employee {
 			this.lastName = lastName;}
 		if(!isParametersInvalid(description)){
 			this.description = description; }
-		if (!isParametersInvalid(email)){
+		if (!isEmailInvalid(email)){
 			this.email = email;
 		}
 		if(!isjobYearsInvalid(jobYears)){
@@ -117,6 +117,10 @@ public class Employee {
 	}
 	public boolean isjobYearsInvalid(Integer jobYears){
 		return jobYears == null || jobYears<0 ;
+	}
+
+	public boolean isEmailInvalid(String email){
+		return  email == null || email.isBlank() || !email.contains("@") ;
 	}
 
 	public boolean isParametersInvalid (String parameters) {
