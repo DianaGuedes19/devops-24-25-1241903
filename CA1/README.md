@@ -516,9 +516,13 @@ Additionally, **GitHub Issues** were utilized to document and resolve problems s
 The comparison of **SVN as an alternative to Git** offered a broader perspective on version control strategies. By examining SVN’s centralized nature against Git’s distributed model, I gained a better understanding of how different systems can be adapted to meet diverse project needs, highlighting the flexibility required in DevOps practices.
 
 This assignment has not only strengthened my **technical proficiency with Git** but also emphasized the crucial role of version control in fostering collaboration, maintaining code integrity, and efficiently managing project evolution.
+---
 
 
-**CA1 Part 2: Build Tools with Gradle – Technical Report**
+
+
+
+## CA1 Part 2: Build Tools with Gradle – Technical Report
 
 ## **Table of Contents**
 
