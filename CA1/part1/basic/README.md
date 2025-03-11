@@ -367,4 +367,37 @@ public boolean isEmailInvalid(String email){
 
 After implementing and validating the fix, the changes were merged into the main branch. The application version was then updated to `v1.3.1` to reflect this minor improvement. To mark the end of the assignment, the repository was tagged as `ca1-part2` to indicate the completion of this phase.
 
+### Final Outcomes
+
+### Implementation
+
+After integrating all the newly developed features, the final version of the application is summarized below:
+
+![FinalResult](finalResult.png)
+
+The employee model within the application initially consisted of the fields First Name, Last Name, and Description, which were already part of the structure before this project and remained unchanged. Development improvements began with the introduction of the Job Title field in an earlier task. Later, during Part 1 of CA1, the Job Years field was implemented to track how long employees have been with the company. The most recent update, introduced in Part 2 of CA1, was the addition of the Email field, which further enriched the model by incorporating employee contact details.
+
+### Branch Management 
+
+The following image displays the current branches in the repository, obtained by running the git branch command:
+
+![Branch](branch.png)
+
+Through this assignment, I gained insight into the significance of branch-based development for managing feature updates and bug fixes. Keeping changes isolated in dedicated branches helps maintain a stable main branch while ensuring an organized and traceable modification history.
+
+### Tagging Significant Milestones
+
+The next image visually represents the project's tags, retrieved using the git tag command:
+
+![Tags](tags.png)
+
+By using tags, I learned how to mark specific versions of the application as key milestones. This approach is essential for tracking progress, making it easier to revert to previous versions when needed, and maintaining a structured version history.
+
+### Issue Tracking and Management
+
+Throughout development, issues were created in GitHub to document and track problems that emerged. These issues were resolved and automatically closed by including  for example "Fix #1"  in the commit messages. Below is an illustration of some of the issues created and successfully closed during this process:
+
+![Issues](issues.png)
+
+Issues are a valuable tool for project management, serving multiple purposes, including bug tracking, feature requests, and task management. They can be assigned to team members, categorized using labels, and linked to specific commits or pull requests. Moving forward, the objective is to leverage issues throughout the entire development cycle, improving task organization, progress tracking, and collaboration, particularly in team-based environments.
 
