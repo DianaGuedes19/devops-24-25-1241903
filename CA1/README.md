@@ -49,13 +49,13 @@
    - [Defining a Copy Task](#defining-a-copy-task)
    - [Implementing a Zip Task](#implementing-a-zip-task)
    - [Conclusion](#conclusion-1)
-10. [CA1 Part 3: Build Tools with Gradle](#ca1-part-3:-build-tools-with-gradle)
+10. [CA1 Part 3: Build Tools with Gradle](#ca1-part3-build-tools-with-gradle)
    - [Set Up Initial Gradle Project](#set-up-initial-gradle-project)
    - [Integrate Existing Code](#integrate-existing-code)
    - [Configure Frontend Plugin for Gradle](#configure-frontend-plugin-for-gradle)
    - [Add Gradle Tasks for File Management](#add-gradle-tasks-for-file-management)
-   - [Alternative Approaches](#alternative-approaches)
-   - [Conclusion](#conclusion-2)
+   - [Alternative with Apache Ant](#alternative-with-apache-ant)
+   
 
 
 ## Introduction
