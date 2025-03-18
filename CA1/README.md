@@ -1,35 +1,29 @@
 # CA1 Part1 - Technical Report
 
-**Author:** Diana Guedes
-
-**Date:** 24/02/2025
-
-**Discipline:** DevOps
-
-**Program:** SWitCH DEV
-
+**Author:** Diana Guedes  
+**Date:** 24/02/2025  
+**Discipline:** DevOps  
+**Program:** SWitCH DEV  
 **Institution:** Instituto Superior de Engenharia/ Instituto Politécnico do Porto
 
-# Table of Contents
-
-- [Introduction](#introduction)
-- [Part 1: Initial Setup](#part-1-initial-setup)
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Part 1: Initial Setup](#part-1-initial-setup)
    - [Objectives and Requirements](#objectives-and-requirements)
    - [Cloning the Repository](#cloning-the-repository)
    - [Running the Project Locally](#running-the-project-locally)
    - [Creating the .gitignore File](#creating-the-gitignore-file)
    - [Committing the Initial Version](#committing-the-initial-version)
    - [Versioning with Git Tags](#versioning-with-git-tags)
-- [Part 2: Adding a New Feature](#part-2-adding-a-new-feature)
-   - [Implementing jobYears Field](#implementing-jobyears-field)
+3. [Part 2: Adding a New Feature](#part-2-adding-a-new-feature)
+   - [Implementing `jobYears` Field](#implementing-jobyears-field)
    - [Unit Testing](#unit-testing)
    - [Debugging](#debugging)
    - [Commit History](#commit-history)
    - [Committing and Tagging the Feature](#committing-and-tagging-the-feature)
-- [Part 3: Finalizing the Assignment](#part-3-finalizing-the-assignment)
+4. [Part 3: Finalizing the Assignment](#part-3-finalizing-the-assignment)
    - [Repository Marking](#repository-marking)
-- [Part 4: Branch-Based Development](#part-4-branch-based-development)
-   - [Objectives and Requirements](#objectives-and-requirements)
+5. [Part 4: Branch-Based Development](#part-4-branch-based-development)
    - [Key Developments](#key-developments)
    - [Working with the Main Branch](#working-with-the-main-branch)
    - [Developing Features in Separate Branches](#developing-features-in-separate-branches)
@@ -37,15 +31,31 @@
    - [Merging the Feature into Main](#merging-the-feature-into-main)
    - [Creating a Bug Fix Branch](#creating-a-bug-fix-branch)
    - [Assignment Completion](#assignment-completion)
-- [Final Outcomes](#final-outcomes)
+6. [Final Outcomes](#final-outcomes)
    - [Implementation](#implementation)
    - [Tagging Significant Milestones](#tagging-significant-milestones)
    - [Issue Tracking and Management](#issue-tracking-and-management)
-- [Alternative Solution](#alternative-solution)
+7. [Alternative Solution](#alternative-solution)
    - [Exploring an Alternative to Git](#exploring-an-alternative-to-git)
    - [Comparison of SVN and Git](#comparison-of-svn-and-git)
    - [Applying SVN to This Assignment](#applying-svn-to-this-assignment)
-- [Conclusion](#conclusion)
+8. [Conclusion](#conclusion)
+9. [CA1 Part 2: Build Tools with Gradle – Technical Report](#ca1-part-2-build-tools-with-gradle--technical-report)
+   - [Introduction](#introduction-1)
+   - [Environment Setup](#environment-setup)
+   - [Gradle Basic Demo](#gradle-basic-demo)
+   - [Creating a New Task](#creating-a-new-task)
+   - [Adding a Unit Test](#adding-a-unit-test)
+   - [Defining a Copy Task](#defining-a-copy-task)
+   - [Implementing a Zip Task](#implementing-a-zip-task)
+   - [Conclusion](#conclusion-1)
+10. [CA1 Part 3: Build Tools with Gradle](#ca1-part-3:-build-tools-with-gradle)
+   - [Set Up Initial Gradle Project](#set-up-initial-gradle-project)
+   - [Integrate Existing Code](#integrate-existing-code)
+   - [Configure Frontend Plugin for Gradle](#configure-frontend-plugin-for-gradle)
+   - [Add Gradle Tasks for File Management](#add-gradle-tasks-for-file-management)
+   - [Alternative Approaches](#alternative-approaches)
+   - [Conclusion](#conclusion-2)
 
 
 ## Introduction
@@ -521,19 +531,6 @@ This assignment has not only strengthened my **technical proficiency with Git** 
 
 ## CA1 Part 2: Build Tools with Gradle – Technical Report
 
-## **Table of Contents**
-
-- [Introduction](#introduction)
-- [Environment Setup](#environment-setup)
-- [Gradle Basic Demo](#gradle-basic-demo)
-- [Creating a New Task](#creating-a-new-task)
-- [Adding a Unit Test](#adding-a-unit-test)
-- [Defining a Copy Task](#defining-a-copy-task)
-- [Implementing a Zip Task](#implementing-a-zip-task)
-- [Conclusion](#conclusion)
-
----
-
 ## **Introduction**
 
 This report presents the work completed for the **Build Tools with Gradle** assignment as part of the **DevOps** course. The main objective was to explore Gradle’s practical functionalities, beginning with basic configurations and extending to creating custom tasks, unit testing, and automating file handling operations.
@@ -712,7 +709,7 @@ This experience has strengthened my understanding of build automation, dependenc
 
 ---
 
-# CA1 Part3: Build Tools with Gradle
+# CA1 Part3 Build Tools with Gradle
 
 ---
 ## Introduction Part 3
@@ -929,5 +926,117 @@ The `cleanWebpack` task is configured to run as part of Gradle's standard `clean
 By integrating `copyJar` and `cleanWebpack` into the **Gradle build process**, file management is automated, enhancing both **efficiency** and **reliability**. These tasks contribute to a more streamlined and consistent deployment process, reducing the risk of outdated or unnecessary files affecting application performance.
 
 
+# Alternative with Apache Ant
 
+This section describes how **Apache Ant** can be used to automate the build process in a **Spring Boot** project, serving as an alternative to Gradle. Although Ant requires more manual configuration, it offers flexibility for compiling the back end, integrating the front end (via npm commands), generating the `.jar` file, and performing cleanup or artifact copy tasks.
+
+### General Structure
+
+- **Java source code** in `src/main/java`
+- **Resources (templates, properties, static files)** in `src/main/resources`
+- **Output directories** for compiled classes and final artifacts (e.g., `build`, `dist`)
+- A **`build.xml`** file in the project root, where we define Ant *targets* and *tasks*
+
+Below is a **simplified example** of what `build.xml` might look like:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="spring-boot-ant" default="package" basedir=".">
+
+    <!-- Project properties -->
+    <property name="src.dir"        value="src/main/java" />
+    <property name="resources.dir"  value="src/main/resources" />
+    <property name="build.dir"      value="build" />
+    <property name="classes.dir"    value="${build.dir}/classes" />
+    <property name="dist.dir"       value="dist" />
+    <property name="jar.name"       value="spring-boot-ant.jar" />
+
+    <!-- Clean build folders -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${dist.dir}" />
+        <!-- Example: remove the frontend built folder -->
+        <delete dir="${resources.dir}/static/built" />
+    </target>
+
+    <!-- Front-end installation and build using npm -->
+    <target name="frontend-build">
+        <exec executable="npm" dir="${resources.dir}/static">
+            <arg value="install"/>
+        </exec>
+        <exec executable="npm" dir="${resources.dir}/static">
+            <arg value="run"/>
+            <arg value="build"/>
+        </exec>
+    </target>
+
+    <!-- Compile Java code and copy resources to the classes folder -->
+    <target name="compile">
+        <mkdir dir="${classes.dir}" />
+        <javac srcdir="${src.dir}" destdir="${classes.dir}">
+            <!-- Optional: configure Java version -->
+            <compilerarg value="--release"/>
+            <compilerarg value="17"/>
+            <!-- Add classpath here if needed (e.g., Spring Boot libraries) -->
+        </javac>
+        <!-- Copy resource files (excluding static if handled by frontend build) -->
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}" excludes="static/**"/>
+        </copy>
+    </target>
+
+    <!-- Generate the JAR (basic version) -->
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.dir}" />
+        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="com.yourproject.SpringBootAntApplication"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Copy the final .jar to a distribution folder (if desired) -->
+    <target name="copy-jar" depends="jar">
+        <copy file="${dist.dir}/${jar.name}" todir="${dist.dir}/final"/>
+    </target>
+
+    <!-- Main target: cleans, builds the front end, compiles Java, packages, and copies artifacts -->
+    <target name="package" depends="clean,frontend-build,jar,copy-jar">
+        <echo message="Build completed with Ant. Artifact is available in '${dist.dir}/final'."/>
+    </target>
+</project>
+```
+
+### Explanation of the Main Targets
+
+1. **clean**  
+   Removes folders and files generated in previous builds. Helpful to ensure a clean recompilation.
+
+2. **frontend-build**  
+   Uses `<exec>` to run `npm install` and `npm run build`. This is where the front-end (React, Angular, Vue, etc.) is prepared.
+
+3. **compile**  
+   Compiles the Java source code and copies non-static resources (for example, Thymeleaf templates). This is where `.class` files are generated.
+
+4. **jar**  
+   Produces a basic JAR from the compiled classes and sets the main class for Spring Boot initialization.
+   > Note: For a “fat JAR” that includes all Spring Boot dependencies, you’d typically need Apache Ivy or manually package the dependencies into the JAR.
+
+5. **copy-jar**  
+   Copies the resulting `.jar` file to another distribution directory, separating the main artifact from the intermediate build files.
+
+6. **package (default)**  
+   This is the main (default) target, which runs in sequence:
+   - **clean** → **frontend-build** → **jar** → **copy-jar**  
+     ensuring the complete end-to-end process.
+
+### Comparison with Gradle
+
+- **Customization vs. Conventions**: Ant does not offer many ready-made conventions, requiring manual setup for each step. By contrast, Gradle provides predefined tasks (assemble, build, check, etc.) and a rich plugin ecosystem.
+- **Dependency Management**: Ant has no built-in dependency management (it’s common to use [Apache Ivy](https://ant.apache.org/ivy/)), whereas Gradle comes with a powerful dependency resolution system.
+- **Readability**: Ant relies on XML, which tends to be more verbose. Gradle’s DSL in Groovy or Kotlin is generally more concise and flexible.
+
+### Conclusion
+
+Although **Apache Ant** requires more manual configuration, it remains a **highly customizable** option for automating builds in a Spring Boot project. The approach shown here covers essential tasks (compilation, front-end integration, packaging, cleanup) that mirror the functionality obtained with Gradle. If your project needs an unconventional build workflow or already uses Ant, this setup may be suitable.
 
