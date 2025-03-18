@@ -5,6 +5,21 @@
 # Compiled class file
 *.class
 
+/.frontend-gradle-plugin/
+
+/.gradle/
+/build/
+/dist/
+
+/node_modules/
+/.yarn/
+/.npm/
+
+/.nyc_output/
+/coverage/
+/.cache/
+
+
 # Log file
 *.log
 
