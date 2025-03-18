@@ -37,3 +37,9 @@ frontend {
 	cleanScript = "run clean"
 	checkScript = "run check"
 }
+
+task copyJar(type: Copy) {
+	dependsOn bootJar
+	from bootJar.outputs
+	into file("dist")
+}
