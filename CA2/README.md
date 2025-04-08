@@ -17,6 +17,15 @@
 7. [Running the gradle basic demo Project](#7-running-the-gradle-basic-demo-project-)
 8. [Running the gradle_basic_demo Project – Part 2](#8-running-the-gradle_basic_demo-project--part-2)
 9. [Conclusion](#9-conclusion)
+10. [Environment Setup](#environment-setup)
+11. [macOS (M2) Configuration](#macos-m2-configuration)
+12. [Base Project Setup](#base-project-setup)
+13. [Customizing the Vagrantfile](#customizing-the-vagrantfile)
+14. [Connecting Spring Boot to the H2 Database](#connecting-spring-boot-to-the-h2-database)
+15. [Running the Project](#running-the-project)
+16. [Vagrant Commands](#vagrant-commands)
+17. [Alternative Solution: UTM/QEMU vs VMware](#alternative-solution-utmqemu-vs-vmware)
+18. [Conclusion](#conclusion-part2)
 
 ---
 
@@ -698,7 +707,7 @@ Using **VMware** may be a better option in enterprise scenarios or when working 
 
 ---
 
-## Conclusion
+## Conclusion Part2
 
 This report detailed the implementation of **Class Assignment 2 – Part 2**, centered on virtualization using **Vagrant**. I configured a Spring Boot + H2 database application in a multi-VM setup, running smoothly via **QEMU** on macOS (M2). The solution demonstrated how virtualization can replicate real-world environments for development and testing.
 
