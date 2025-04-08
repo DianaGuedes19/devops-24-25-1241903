@@ -302,3 +302,408 @@ Overall, this assignment enhanced my ability to manage and troubleshoot developm
 
 ---
 
+## CA2 - Part 2: Virtualization with Vagrant - Technical Report
+
+## Introduction
+
+This technical report outlines the development process and results of Class Assignment 2 - Part 2, focused on using Vagrant for virtualization. The main objective was to create a virtual environment capable of running a Spring Boot application connected to an H2 database. In this document, I explain how I configured the Vagrant setup, established the connection between the application and the database, and successfully launched the system. I also experimented with an alternative solution using VMWare through Vagrant and briefly compare the main differences between this approach and the use of QEMU.
+
+---
+
+## Environment Setup
+
+To create the virtualized environment with Vagrant, I followed the steps below:
+
+1. **Installing Vagrant:**  
+   I downloaded the latest version compatible with macOS directly from the [official Vagrant site](https://www.vagrantup.com/) and followed the installation instructions.
+
+## macOS (M2) Configuration
+
+Because I’m using a Mac with an M2 chip, I had to use a different virtualization provider. Below are the steps I followed to get everything working smoothly.
+
+### 1. Prepare the system
+
+First, make sure you have **Xcode Command Line Tools** and **Homebrew** installed:
+
+```bash
+sudo xcode-select --install
+```
+
+If Homebrew isn’t installed, run:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### 2. Install virtualization dependencies
+
+Install **QEMU**:
+
+```bash
+brew install qemu
+```
+
+Install the **libvirt** library:
+
+```bash
+brew install libvirt
+```
+
+### 3. Install Vagrant and required plugins
+
+Install Vagrant from the official HashiCorp tap:
+
+```bash
+brew install hashicorp/tap/hashicorp-vagrant
+```
+
+Install the QEMU provider plugin:
+
+```bash
+vagrant plugin install vagrant-qemu
+```
+
+### 4. Running the setup
+
+Create a folder locally and copy the contents of the `macOS` folder provided.
+
+Start the virtual machines (with elevated permissions to allow correct network configuration):
+
+```bash
+sudo vagrant up
+```
+
+---
+**Update `.gitignore`**
+
+   Add the following lines to prevent tracking of build files folders:
+
+   ```text
+   .vagrant/
+   *.war
+   ```
+---
+
+## Base Project Setup
+
+To begin the assignment, I first obtained the base Vagrant configuration by cloning a prepared repository:
+
+```bash
+git clone https://bitbucket.org/pssmatos/vagrant-multi-spring-tut-demo
+```
+
+This repository provided the foundational configuration and structure required to initiate the virtualized environment.
+
+After cloning, I copied the `Vagrantfile` into my own project directory to serve as the starting point for the setup:
+
+```bash
+cp -r vagrant-multi-spring-tut-demo/macOS/Vagrantfile ~/Documents/devops-24-25-1241903/CA2/part2
+```
+
+With this in place, my project directory was ready with the necessary Vagrant setup to move forward with the configuration and provisioning of the virtual machines.
+
+---
+
+## Customizing the Vagrantfile
+
+The `Vagrantfile` serves as the blueprint for configuring and provisioning virtual machines. After copying the base configuration, I made several adjustments to adapt it to the needs of this specific project:
+
+- **Updated the Git Repository**: Replaced the default repository URL to point to my own GitHub project.
+- **Set the Correct Working Path**: Adjusted the directory paths to reflect my local project structure.
+- **Enabled Spring Boot Execution**: Included the `./gradlew bootRun` command to automatically launch the Spring Boot application.
+- **Specified Java Version**: Switched the default Java setup to OpenJDK 17 to match the project requirements.
+
+Below is the resulting `Vagrantfile` after applying these modifications:
+
+```ruby
+Vagrant.configure("2") do |config|
+    config.ssh.forward_agent = true
+  config.vm.box = "perk/ubuntu-2204-arm64"
+
+  # This provision is common for both VMs
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get -y update
+    sudo apt-get install -y iputils-ping avahi-daemon libnss-mdns unzip \
+         openjdk-17-jdk-headless
+    # ifconfig
+  SHELL
+
+  #============
+  # Configurations specific to the database VM
+  config.vm.define "db" do |db|
+    db.vm.box = "perk/ubuntu-2204-arm64"
+    db.vm.hostname = "db"
+
+    db.vm.provider "qemu" do |qe|
+      qe.arch = "aarch64"
+      qe.machine = "virt,accel=hvf,highmem=off"
+      qe.cpu = "cortex-a72"
+      qe.net_device = "virtio-net-pci"
+      qe.memory = "512"
+      qe.ssh_port = 50122
+      qe.extra_qemu_args = %w(-netdev vmnet-host,id=vmnet,start-address=192.168.56.1,end-address=192.168.56.255,subnet-mask=255.255.255.0 -device virtio-net-pci,mac=52:54:00:12:34:50,netdev=vmnet)
+    end
+
+    # We want to access H2 console from the host using port 8082
+    # We want to connet to the H2 server using port 9092
+    db.vm.network "forwarded_port", guest: 8082, host: 8082
+    db.vm.network "forwarded_port", guest: 9092, host: 9092
+
+    # We need to download H2 and configure host-network
+    config.vm.provision "shell", inline: <<-SHELL
+      wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+    SHELL
+
+    # The following provision shell will run ALWAYS so that we can execute the H2 server process
+    # This could be done in a different way, for instance, setiing H2 as as service, like in the following link:
+    # How to setup java as a service in ubuntu: http://www.jcgonzalez.com/ubuntu-16-java-service-wrapper-example
+    #
+    # To connect to H2 use: jdbc:h2:tcp://192.168.33.11:9092/./jpadb
+    db.vm.provision "file", source: "provision/netcfg-db.yaml", destination: "/home/vagrant/01-netcfg.yaml"
+    db.vm.provision "shell", :run => 'always', inline: <<-SHELL
+      sudo mv /home/vagrant/01-netcfg.yaml /etc/netplan
+      chmod 600 /etc/netplan/01-netcfg.yaml
+      sudo netplan apply
+    
+      java -cp ./h2*.jar org.h2.tools.Server -web -webAllowOthers -tcp -tcpAllowOthers -ifNotExists > ~/out.txt &
+    SHELL
+  end
+
+  #============
+  # Configurations specific to the webserver VM
+  config.vm.define "web" do |web|
+    web.vm.box = "perk/ubuntu-2204-arm64"
+    web.vm.hostname = "web"
+
+    web.vm.provider "qemu" do |qe|
+      qe.arch = "aarch64"
+      qe.machine = "virt,accel=hvf,highmem=off"
+      qe.cpu = "cortex-a72"
+      qe.net_device = "virtio-net-pci"
+      qe.memory = "1G"
+      qe.ssh_port = 50222
+      qe.extra_qemu_args = %w(-netdev vmnet-host,id=vmnet,start-address=192.168.56.1,end-address=192.168.56.255,subnet-mask=255.255.255.0 -device virtio-net-pci,mac=52:54:00:12:34:51,netdev=vmnet)
+    end
+
+    # We want to access tomcat from the host using port 8080
+    web.vm.network "forwarded_port", guest: 8080, host: 8080
+
+    web.vm.provision "file", source: "provision/netcfg-web.yaml", destination: "/home/vagrant/01-netcfg.yaml"
+    web.vm.provision "shell", inline: <<-SHELL, privileged: false
+      sudo mv /home/vagrant/01-netcfg.yaml /etc/netplan
+      chmod 600 /etc/netplan/01-netcfg.yaml
+      sudo netplan apply
+    
+      #sudo apt-get install git -y
+      #sudo apt-get install nodejs -y
+      #sudo apt-get install npm -y
+      #sudo ln -s /usr/bin/nodejs /usr/bin/node
+      sudo apt install -y tomcat9 tomcat9-admin
+      # If you want to access Tomcat admin web page do the following:
+      # Edit /etc/tomcat9/tomcat-users.xml
+      # uncomment tomcat-users and add manager-gui to tomcat user
+
+      # Change the following command to clone your own repository!
+      ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      git clone git@github.com:DianaGuedes19/devops-24-25-1241903.git
+      cd devops-24-25-1241903/CA1/part3/react-and-spring-data-rest-basic
+      chmod u+x gradlew
+      ./gradlew clean build
+      ./gradlew bootRun
+      # To deploy the war file to tomcat9 do the following command:
+      sudo cp ./build/libs/basic-0.0.1-SNAPSHOT.war /var/lib/tomcat9/webapps
+    SHELL
+
+  end
+
+end
+
+```
+
+These adjustments ensured the environment was aligned with the project’s specific dependencies and workflow.
+
+---
+
+## Connecting Spring Boot to the H2 Database
+
+In order to link the Spring Boot backend with the H2 database running in the `db` virtual machine, I updated the backend project configuration and the frontend React application.
+
+### application.properties Configuration
+
+Inside the backend project (`react-and-spring-data-rest-basic`), I configured the file located at `src/main/resources/application.properties` with the following settings:
+
+```properties
+server.servlet.context-path=/basic-0.0.1-SNAPSHOT
+spring.data.rest.base-path=/api
+spring.datasource.url=jdbc:h2:tcp://192.168.56.11:9092/./jpadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.h2.console.settings.web-allow-others=true
+```
+
+This configuration ensures that the application connects to the H2 database running on the virtual machine at IP `192.168.56.11` using TCP. It also exposes the H2 console for debugging and monitoring at `/h2-console`.
+
+### React Frontend Adjustment
+
+In the React frontend (`src/App.js`), I updated the API endpoint to align with the Spring Boot context and REST base path. Specifically, the line responsible for fetching employee data was changed to:
+
+```javascript
+client({method: 'GET', path: '/basic-0.0.1-SNAPSHOT/api/employees'}).done(response => {
+```
+
+This ensures that the frontend fetches data from the correct endpoint, now served under the custom context path and base API URL.
+
+---
+
+## Running the Project
+
+Before launching the virtual environment, I made sure QEMU was properly set up and that the GitHub repository being used was publicly accessible.
+
+### Launching the Virtual Machines
+
+Inside the root directory of the project, I launched the virtual machines using the following command:
+
+```bash
+sudo vagrant up
+```
+
+This command triggered the provisioning process defined in the `Vagrantfile`, which includes downloading dependencies, configuring the network, and starting services like the H2 database and Spring Boot application.
+
+### Verifying the Spring Boot Application
+
+Once everything was up and running, I opened my browser and visited:
+
+```
+http://localhost:8080/basic-0.0.1-SNAPSHOT/
+```
+![Vagrant FrontEnd](images/frontEnd.png)
+
+This URL allowed me to verify that the Spring Boot backend was running correctly and accessible.
+
+### Accessing the H2 Database Console
+
+To inspect the in-memory database, I accessed the H2 console via:
+
+```
+http://localhost:8082/h2-console
+```
+
+I used the following JDBC connection string to connect:
+
+```
+jdbc:h2:tcp://192.168.56.11:9092/./jpadb
+```
+![H2 Login](images/H2Login.png)
+
+No username or password was needed, as the default configuration sets the username to `sa` and leaves the password empty.
+
+### Exploring the Database
+
+After logging into the console, I was able to view and interact with the `EMPLOYEE` table, created and managed by the Spring Boot application. This confirmed that both the application and the database were communicating properly and functioning as expected.
+
+![H2 Login](images/H2finish.png)
+
+---
+
+## Vagrant Commands
+
+Below is a list of the primary Vagrant commands I used throughout the setup and troubleshooting process, along with a brief description of what each command does:
+
+| Command             | Description                                                                 |
+|---------------------|-----------------------------------------------------------------------------|
+| `vagrant init`      | Initializes a new Vagrant environment by creating a `Vagrantfile`.          |
+| `vagrant up`        | Starts and provisions the virtual machine(s) as defined in the `Vagrantfile`.|
+| `vagrant halt`      | Gracefully shuts down the running Vagrant machine.                          |
+| `vagrant reload`    | Restarts the virtual machine and applies any changes made to the `Vagrantfile`.|
+| `vagrant destroy`   | Completely removes the Vagrant-managed VM and all associated resources.     |
+| `vagrant ssh`       | Establishes an SSH connection to the running Vagrant machine.               |
+| `vagrant status`    | Displays the current state of the Vagrant machine(s).                       |
+| `vagrant suspend`   | Pauses the virtual machine and saves its state.                             |
+| `vagrant resume`    | Resumes a machine that was previously suspended.                            |
+| `vagrant provision` | Forces Vagrant to re-run the provisioning scripts defined in the `Vagrantfile`. |
+
+---
+
+## Alternative Solution: UTM/QEMU vs VMware
+
+In this section, I explore **UTM/QEMU** as the primary virtualization tool used on macOS with M2 processors, and compare it with **VMware**, another popular virtualization solution. This comparison highlights key differences and considerations for virtual machine management, especially when integrated with Vagrant.
+
+### Comparison of UTM/QEMU and VMware
+
+#### UTM/QEMU
+
+**Overview**: UTM is a macOS-friendly GUI built on top of QEMU, an open-source hardware emulator and virtualizer. It is ideal for M1/M2 Macs due to native ARM support and flexibility.
+
+**Pros**:
+- Free and open-source.
+- Native support for ARM architecture (ideal for Apple Silicon).
+- Seamless integration with Vagrant via the `vagrant-qemu` plugin.
+- Lightweight and highly customizable.
+
+**Cons**:
+- Slightly more manual configuration compared to other tools.
+- Some advanced GUI features are still evolving.
+
+#### VMware (Fusion/Workstation)
+
+**Overview**: A commercial, enterprise-grade virtualization platform offering high performance and advanced features. Supports both Intel and ARM architectures (with limitations).
+
+**Pros**:
+- Superior performance and stability.
+- Rich feature set: snapshots, cloning, shared folders, etc.
+- Good integration with other VMware tools used in enterprise environments.
+
+**Cons**:
+- Paid software (license required after trial).
+- Limited support for ARM-based guests compared to QEMU.
+
+### Using VMware with Vagrant
+
+Although I used QEMU via `vagrant-qemu`, it’s important to understand how VMware can be set up with Vagrant as an alternative:
+
+#### 1. Install the VMware Utility
+
+This is necessary to allow Vagrant to manage VMware-based VMs.
+
+```bash
+wget https://releases.hashicorp.com/vagrant-VMware-utility/1.0.14/vagrant-VMware-utility_1.0.14_x86_64.deb
+sudo dpkg -i vagrant-VMware-utility_1.0.14_x86_64.deb
+```
+
+#### 2. Install the VMware Plugin for Vagrant
+
+```bash
+vagrant plugin install vagrant-vmware-desktop
+```
+
+#### 3. Configure `Vagrantfile` to Use VMware
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.vmx["memsize"] = "1024"
+    v.vmx["numvcpus"] = "2"
+  end
+end
+```
+
+Using **VMware** may be a better option in enterprise scenarios or when working on large-scale projects requiring performance optimizations. However, for macOS users with M1/M2 chips, **QEMU**  is often the more accessible and compatible choice — especially in educational or open-source environments.
+
+---
+
+## Conclusion
+
+This report detailed the implementation of **Class Assignment 2 – Part 2**, centered on virtualization using **Vagrant**. I configured a Spring Boot + H2 database application in a multi-VM setup, running smoothly via **QEMU** on macOS (M2). The solution demonstrated how virtualization can replicate real-world environments for development and testing.
+
+Additionally, I explored an **alternative virtualization approach using VMware**, providing a comparison between **QEMU and VMware**, and outlining how each fits different development contexts.
+
+This exercise not only strengthened my understanding of virtualization tools but also gave me hands-on experience with provisioning, VM configuration, and system-level integration — skills highly valuable for DevOps and backend development roles.
+
+
