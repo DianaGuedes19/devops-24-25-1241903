@@ -26,6 +26,12 @@
 16. [Vagrant Commands](#vagrant-commands)
 17. [Alternative Solution: UTM/QEMU vs VMware](#alternative-solution-utmqemu-vs-vmware)
 18. [Conclusion](#conclusion-part2)
+19. [CA2 - Part 3: Containers with Docker: Technical Report](#ca2---part-3-containers-with-docker-technical-report)
+20. [Introduction](#introduction)
+21. [Environment Setup](#environment-setup)
+22. [Version 1: Building the Chat Server Inside Docker](#version-1-building-the-chat-server-inside-docker)
+23. [Version 2: Building the Chat Server Outside Docker](#version-2-building-the-chat-server-outside-docker)
+24. [Conclusion](#conclusion-part3)
 
 ---
 
@@ -715,6 +721,7 @@ Additionally, I explored an **alternative virtualization approach using VMware**
 
 This exercise not only strengthened my understanding of virtualization tools but also gave me hands-on experience with provisioning, VM configuration, and system-level integration — skills highly valuable for DevOps and backend development roles.
 
+---
 
 # CA2 - Part 3: Containers with Docker: Technical Report
 
@@ -742,7 +749,7 @@ Below you’ll find a concise record of how I prepared my environment, crafted e
 
 ---
 
-## Version 1: Building the Chat Server _Inside_ Docker
+## Version 1: Building the Chat Server Inside Docker
 
 For this first variant, I let Docker handle both cloning and building the application in a multi-stage build. This keeps the final image small by using a full JDK during compilation, then switching to a lightweight JRE for runtime.
 
@@ -872,11 +879,10 @@ This produced `build/libs/basic_demo-0.1.0.jar`.
 
 ![Docker Repository](part3/images/dockerRepositoryV2.png)
 
-[Docker Local](part3/images/docker2.png)
 
 ---
 
-## Conclusion
+## Conclusion Part3
 
 In this individual exercise I successfully created two Docker images for the same chat server:
 
