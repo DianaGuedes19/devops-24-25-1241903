@@ -716,3 +716,92 @@ Additionally, I explored an **alternative virtualization approach using VMware**
 This exercise not only strengthened my understanding of virtualization tools but also gave me hands-on experience with provisioning, VM configuration, and system-level integration — skills highly valuable for DevOps and backend development roles.
 
 
+## CA2 - Part 3: Containers with Docker: Technical Report
+
+# Introduction
+
+The aim of this exercise is to get hands-on experience with Docker by packaging and running a simple Gradle-based chat server inside containers. We start from the CA2 chat application (hosted on Bitbucket) and produce two distinct Docker images:
+
+1. **Version 1**: compile and assemble the server **inside** a multi-stage Dockerfile.  
+2. **Version 2**: build the JAR **on the host**, then inject that artifact into a lean runtime image.
+
+Below you’ll find a concise record of how I prepared my environment, crafted each Dockerfile, and built & ran the resulting images.
+
+---
+
+## Environment Setup
+
+1. **Install Docker** on my workstation and verify it’s running:
+   ```bash
+   docker --version
+   ```
+2. **Clone the chat-server repository**:
+   ```bash
+   git clone https://bitbucket.org/pssmatos/gradle_basic_demo/
+   ```
+
+---
+
+## Version 1: Building the Chat Server _Inside_ Docker
+
+For this first variant, I let Docker handle both cloning and building the application in a multi-stage build. This keeps the final image small by using a full JDK during compilation, then switching to a lightweight JRE for runtime.
+
+1. **Ensure Docker is running** on my machine.
+2. **Navigate** to the folder where my `Dockerfile` lives.
+3. **Create the following Dockerfile**:
+
+   ```dockerfile
+    FROM gradle:jdk17 AS builder
+    WORKDIR /app
+    
+    COPY .. .
+    RUN chmod +x gradlew \
+    && ./gradlew build --no-daemon
+    
+    FROM eclipse-temurin:17-jre
+    WORKDIR /app
+    
+    COPY --from=builder /app/build/libs/basic_demo-0.1.0.jar ./basic_demo-0.1.0.jar
+    
+    EXPOSE 59001
+    ENTRYPOINT ["java", "-cp", "basic_demo-0.1.0.jar", "basic_demo.ChatServerApp", "59001"]
+   ```
+
+4. **Build the image** by running:
+   ```bash
+   docker build -t dianaguedes/chat-server:version1 .
+   ```
+   
+![Docker Build](part3/images/dockerBuild.png)
+
+5. **Verify** that the image was created:
+   ```bash
+   docker images
+   ```
+
+![Docker Images](part3/images/dockerImages.png)
+
+6. **Run the container** and map port 59001:
+   ```bash
+    docker run -p 59001:59001 dianaguedes/chat-server:version1
+   ```
+
+![Docker Run](part3/images/dockerContainerRunning.png)
+
+7. In a separate terminal, **build and start the chat client**:
+   ```bash
+   ./gradlew build
+   ./gradlew runClient
+   ```
+   I opened two client instances to exchange messages and confirmed that the server log showed each connection, disconnection, and message.
+
+![Docker Chat](part3/images/chatDocker.png)
+
+8. Finally, I **pushed the image** to Docker Hub:
+   ```bash
+   docker push <your-dockerhub-username>/chat-server:version1
+   ```
+
+![Docker Push](part3/images/dockerPush.png)
+
+Now my Version 1 container is published and ready to run on any machine with Docker.
