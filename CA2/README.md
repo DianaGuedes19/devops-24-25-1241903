@@ -716,9 +716,9 @@ Additionally, I explored an **alternative virtualization approach using VMware**
 This exercise not only strengthened my understanding of virtualization tools but also gave me hands-on experience with provisioning, VM configuration, and system-level integration — skills highly valuable for DevOps and backend development roles.
 
 
-## CA2 - Part 3: Containers with Docker: Technical Report
+# CA2 - Part 3: Containers with Docker: Technical Report
 
-# Introduction
+## Introduction
 
 The aim of this exercise is to get hands-on experience with Docker by packaging and running a simple Gradle-based chat server inside containers. We start from the CA2 chat application (hosted on Bitbucket) and produce two distinct Docker images:
 
@@ -805,3 +805,82 @@ For this first variant, I let Docker handle both cloning and building the applic
 ![Docker Push](part3/images/dockerPush.png)
 
 Now my Version 1 container is published and ready to run on any machine with Docker.
+
+## Version 2: Building the Chat Server Outside Docker
+
+In this variant, I compile the server on my host machine and then import the resulting JAR into a lightweight runtime image.
+
+1. **Compile locally**  
+   From the project root (where `gradlew` lives) I ran:
+   ```bash
+   ./gradlew build
+   ```
+This produced `build/libs/basic_demo-0.1.0.jar`.
+
+![Build Grade](part3/images/guildGrade2V.png)
+
+2. **Place the Dockerfile**  
+   I created `Dockerfilev2` alongside the `build/` folder:
+
+   ```dockerfile
+   # Runtime image using a slim JRE
+    FROM eclipse-temurin:17-jre
+    
+    WORKDIR /app
+    
+    COPY build/libs/basic_demo-0.1.0.jar ./basic_demo-0.1.0.jar
+    
+    EXPOSE 59001
+    
+    ENTRYPOINT ["java", "-cp", "basic_demo-0.1.0.jar", "basic_demo.ChatServerApp", "59001"]
+   ```
+
+3. **Build the Docker image**  
+   From the same directory:
+   ```bash
+   docker build -f Dockerfilev2 -t dianaguedes/chat-server:version2 .
+   ```
+
+4. **Verify the image**
+   ```bash
+   docker images
+   ```
+
+![Docker Images](part3/images/dockerImagesV2.png)
+
+5. **Run the container**
+   ```bash
+   docker run -p 59001:59001 dianaguedes/chat-server:version2
+   ```
+
+![Docker Run](part3/images/dockerRunChatV2.png)
+
+6. **Test with the client**  
+   In a separate terminal I ran:
+   ```bash
+   ./gradlew runClient
+   ```
+   I opened two client sessions, exchanged messages, and confirmed the server log showed each connect/disconnect and message.
+
+![Docker Chat](part3/images/chatV2.png)
+
+7. **Push to Docker Hub**
+   ```bash
+   docker login
+   docker push dianaguedes/chat-server:version2
+   ```
+
+![Docker Repository](part3/images/dockerRepositoryV2.png)
+
+[Docker Local](part3/images/DockerLocalV2.png)
+
+---
+
+## Conclusion
+
+In this individual exercise I successfully created two Docker images for the same chat server:
+
+- **Version 1** builds and packages the application entirely inside a multi-stage Dockerfile.
+- **Version 2** compiles the JAR on my host machine and then injects it into a minimal runtime image.
+
+Both strategies ensure the chat server runs reliably in any Docker-enabled environment, demonstrating Docker’s versatility in application packaging and deployment.
