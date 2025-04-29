@@ -846,7 +846,7 @@ This produced `build/libs/basic_demo-0.1.0.jar`.
    docker images
    ```
 
-![Docker Images](part3/images/dockerImagesV2.png)
+![Docker Images](part3/images/dockerImage.png)
 
 5. **Run the container**
    ```bash
@@ -872,7 +872,7 @@ This produced `build/libs/basic_demo-0.1.0.jar`.
 
 ![Docker Repository](part3/images/dockerRepositoryV2.png)
 
-[Docker Local](part3/images/DockerLocalV2.png)
+[Docker Local](part3/images/docker2.png)
 
 ---
 
