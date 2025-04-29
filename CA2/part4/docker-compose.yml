@@ -1,0 +1,31 @@
+# docker-compose.yml (na raiz de CA2-part4/)
+version: "3.8"
+
+services:
+  db:
+    build: ./db
+    container_name: ca2p4-db
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    volumes:
+      - h2data:/usr/src/app
+    networks:
+      - ca2net
+
+  web:
+    build: ./web
+    container_name: ca2p4-web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - ca2net
+
+volumes:
+  h2data:
+
+networks:
+  ca2net:
+    driver: bridge
