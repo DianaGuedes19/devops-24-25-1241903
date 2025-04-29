@@ -806,7 +806,7 @@ For this first variant, I let Docker handle both cloning and building the applic
 
 8. Finally, I **pushed the image** to Docker Hub:
    ```bash
-   docker push <your-dockerhub-username>/chat-server:version1
+   docker push dianaguedes/chat-server:version1
    ```
 
 ![Docker Push](part3/images/dockerPush.png)
