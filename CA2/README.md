@@ -890,3 +890,319 @@ In this individual exercise I successfully created two Docker images for the sam
 - **Version 2** compiles the JAR on my host machine and then injects it into a minimal runtime image.
 
 Both strategies ensure the chat server runs reliably in any Docker-enabled environment, demonstrating Docker’s versatility in application packaging and deployment.
+
+---
+
+# CA2 - Part 4: Containers with Docker: Technical Report
+
+## Introduction
+
+This document outlines the end-to-end process I followed to containerize a Spring Boot web application alongside an H2 database using Docker. The objective was to illustrate how to:
+
+1. Write Dockerfiles for both the database and the web service
+2. Orchestrate the two containers with Docker Compose
+3. Persist and extract the H2 database file via a named volume
+4. Tag and push the resulting images to Docker Hub
+
+Through these steps, I gained hands-on experience in building, deploying and managing multi-container applications. Additionally, I validated the setup by launching the H2 web console and verifying data persistence across container restarts.  
+
+
+## DB Dockerfile
+
+The database service uses H2 in server mode. The `db/Dockerfile` contains:
+
+```dockerfile
+FROM openjdk:11-jre-slim
+
+
+RUN apt-get update \
+    && apt-get install -y wget \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+
+RUN wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+
+
+EXPOSE 9092 8082
+
+
+CMD ["java", "-cp", "./h2-1.4.200.jar", "org.h2.tools.Server", \
+     "-tcp", "-tcpAllowOthers", "-ifNotExists", \
+     "-web", "-webAllowOthers"]
+```
+
+**Highlights**
+- **Base image**: `openjdk:11-jre-slim` provides a minimal Java runtime.
+- **Tools**: Installs `wget` to fetch the H2 JAR, then removes the local apt cache to keep the image small.
+- **Working directory**: All files live under `/usr/src/app`.
+- **H2 download**: Pulls version 1.4.200 directly from Maven Central.
+- **Ports**:
+   - `9092` for the H2 TCP server
+   - `8082` for the H2 web console
+- **Startup command**:
+   - `-tcp` / `-tcpAllowOthers` starts the TCP listener for application connectivity.
+   - `-web` / `-webAllowOthers` enables the built-in web console.
+   - `-ifNotExists` ensures the database is created automatically if it doesn’t already exist.
+
+
+## Web Dockerfile
+
+The web service runs a Spring Boot application built with Gradle. The `web/Dockerfile` looks like this:
+
+```dockerfile
+FROM openjdk:17-jdk-slim
+
+RUN apt-get update \
+    && apt-get install -y git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+
+RUN git clone https://github.com/vapreace/devops-23-24-JPE-PSM-1231832.git .
+
+WORKDIR /usr/src/app/CA2/Part2/react-and-spring-data-rest-basic
+
+
+RUN chmod +x gradlew \
+    && ./gradlew clean bootJar
+
+EXPOSE 8080
+
+
+CMD ["java", "-jar", "build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar"]
+
+```
+
+**Highlights**
+- **Base image**: `openjdk:17-jdk-slim` provides a lightweight JDK 17 environment.
+- **Git**: Installed to fetch your repository at build time, then cleaned up to keep the image lean.
+- **Repository clone**: Grabs the Gradle-based sample app from GitHub.
+- **Build step**:
+    - Makes the Gradle wrapper executable
+    - Runs `./gradlew clean bootJar` to produce a self-contained JAR.
+- **Port**: `8080` is exposed for HTTP traffic.
+- **Startup command**: Runs the fat JAR directly (`java -jar …`) instead of deploying to an external servlet container.
+
+
+## Docker Compose
+
+To orchestrate the H2 database and the Spring Boot web application together, I defined both services in a single `docker-compose.yml` at the root of the project:
+
+```yaml
+services:
+  db:
+    build:
+      context: ./db
+    container_name: ca2p4-db
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+    volumes:
+      - h2data:/usr/src/app
+    networks:
+      - ca2net
+
+  web:
+    build:
+      context: ./web
+    container_name: ca2p4-web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL:      jdbc:h2:tcp://db:9092/./test
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_H2_CONSOLE_ENABLED:  "true"
+      SPRING_H2_CONSOLE_PATH:     /h2-console
+    networks:
+      - ca2net
+
+volumes:
+  h2data:
+
+networks:
+  ca2net:
+    driver: bridge
+```
+
+**Key points**
+- **db service**
+    - **Build context**: `./db` contains the H2‐server Dockerfile.
+    - **Ports**:
+        - `9092` for the H2 TCP server
+        - `8082` for the H2 Web console
+    - **Volume**: Persists the database jar and data under a named volume `h2data`.
+- **web service**
+    - **Build context**: `./web` with the Spring Boot Dockerfile.
+    - **Port**: Exposes `8080` for the application.
+    - **depends_on**: Ensures the database container is up before the web app starts.
+    - **Environment variables**:
+        - `SPRING_DATASOURCE_URL`: Points to `jdbc:h2:tcp://db:9092/./test` to use the H2 server running in the `db` container.
+        - `SPRING_H2_CONSOLE_ENABLED` & `SPRING_H2_CONSOLE_PATH`: Enable the Spring‐embedded H2 console at `/h2-console`.
+- **Networking**
+    - Both services share the `ca2net` bridge network for internal DNS resolution (`db` ↔ `web`).
+
+To launch both services together, run:
+
+```bash
+docker-compose up --build -d
+```
+
+![Docker Compose Build](part4/images/dockerCompose.png)
+
+Once running:
+- The Spring Boot app is available at **http://localhost:8080**
+- The H2 Web console at **http://localhost:8082** (use JDBC URL `jdbc:h2:tcp://db:9092/./test`, user `sa`, no password)
+
+![Front end](part4/images/localHost8080.png)
+![H2](part4/images/H2DOCKER.png)
+
+
+## Tag and Push Images
+
+Once both images were built locally, I confirmed their presence:
+
+```bash
+docker images
+```
+
+![Docker Images](part4/images/dockerImages.png)
+
+
+### Tagging
+
+I tagged each image for my Docker Hub repository:
+
+```bash
+docker tag part4-db:latest     dianaguedes/ca2p4-db:db
+docker tag part4-web:latest    dianaguedes/ca2p4-web:web
+```
+
+![Docker Tags](part4/images/dockerTags.png)
+
+### Pushing
+
+1. Log in to Docker Hub:
+
+   ```bash
+   docker login
+   ```
+
+2. Push the tagged images:
+
+   ```bash
+   docker push dianaguedes/ca2p4-db:db:latest
+   docker push dianaguedes/ca2p4-web:web:latest
+   ```
+
+![Push Images](part4/images/dockerDBPush.png)
+![Push Images](part4/images/dockerWebPush.png)
+
+Once complete, you’ll see the images in your Docker Hub repository:
+
+![Docker Hub Repository](part4/images/dockerRepositoryDBWEB.png)
+
+
+
+## Working with Volumes
+
+To guarantee that both the H2 server JAR and the actual database file survive container restarts, I backed them up into the named `h2data` volume and then copied them out to my host:
+
+1. **Enter the running DB container**  
+   ```bash
+   docker-compose exec db bash
+   ```
+
+2. **Create a backup folder on the mounted volume**
+   ```bash
+   mkdir -p /usr/src/data-backup
+   ```
+
+3. **Copy the H2 JAR and any existing database into that folder**
+   ```bash
+   cp /usr/src/app/h2-1.4.200.jar     /usr/src/data-backup/
+   [ -f /usr/src/app/test.mv.db ] && cp /usr/src/app/test.mv.db /usr/src/data-backup/
+   ```
+
+4. **Exit the container shell**
+   ```bash
+   exit
+   ```
+
+5. **On the host, create a local directory to receive the backup**
+   ```bash
+   mkdir -p db
+   ```
+
+6. **Copy the database file (and JAR, if desired) from the volume to your host**
+   ```bash
+   docker cp ca2p4-db:/usr/src/data-backup/test.mv.db ./db/
+   docker cp ca2p4-db:/usr/src/data-backup/h2-1.4.200.jar   ./db/
+   ```
+
+After these steps, you’ll find both `test.mv.db` and `h2-1.4.200.jar` in your project’s `db/` folder on the host. This ensures your database state and the H2 server binary are persisted even if you tear down and recreate the `db` container.
+
+![Working with volumes](part4/images/dockerComposeAndExtraction.png)
+
+
+## Alternative Deployment (Heroku)
+
+As an optional path, I looked into deploying the Spring Boot application on Heroku:
+
+1. **Heroku CLI setup**  
+   ```bash
+   heroku login
+   ```
+
+2. **Create a Heroku app**
+   ```bash
+   heroku create myFirstApp
+   ```
+
+3. **Deploy the JAR via Git**
+   ```bash
+   git push heroku main
+   heroku open
+   ```
+
+4. **Push Docker images to Heroku Container Registry**
+   ```bash
+   heroku container:login
+   heroku container:push web --app myFirstApp
+   heroku container:push db  --app myFirstApp
+   ```
+
+5. **Release the containers**
+   ```bash
+   heroku container:release web db --app myFirstApp
+   ```
+
+Once released, the application and H2 service become accessible at the Heroku-generated URL.
+
+---
+
+## Conclusion
+
+In this project I:
+
+- **Containerized**
+    - An H2 database server (Java 11 + H2 1.4.200 JAR)
+    - A Spring Boot web application (Java 17, Gradle build)
+
+- **Orchestrated** them with Docker Compose
+    - Linked `db` and `web` services on a custom bridge network
+    - Mounted a named volume for H2 data persistence
+
+- **Managed images**
+    - Tagged and pushed both `web` and `db` images to Docker Hub
+    - Verified persistence by copying the H2 JAR and database file into the named volume
+
+- **Explored** an alternative Heroku deployment using both Git and the Container Registry
+
+This workflow illustrates end-to-end container lifecycle management—from writing Dockerfiles and Compose configs to persisting data, tagging/pushing images, and even deploying to a cloud PaaS. It reinforces best practices for reproducible, maintainable application deployments.
+```
