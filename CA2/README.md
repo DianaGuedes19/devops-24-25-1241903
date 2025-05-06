@@ -727,7 +727,7 @@ This exercise not only strengthened my understanding of virtualization tools but
 
 ## Introduction
 
-The aim of this exercise is to get hands-on experience with Docker by packaging and running a simple Gradle-based chat server inside containers. We start from the CA2 chat application (hosted on Bitbucket) and produce two distinct Docker images:
+The aim of this exercise is to get hands-on experience with Docker by packaging and running a simple Gradle-based chat server inside containers. We start from the CA1 chat application (hosted on Bitbucket) and produce two distinct Docker images:
 
 1. **Version 1**: compile and assemble the server **inside** a multi-stage Dockerfile.  
 2. **Version 2**: build the JAR **on the host**, then inject that artifact into a lean runtime image.
@@ -961,7 +961,7 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 
 
-RUN git clone https://github.com/vapreace/devops-23-24-JPE-PSM-1231832.git .
+RUN git clone https://github.com/DianaGuedes19/devops-24-25-1241903 .
 
 WORKDIR /usr/src/app/CA2/Part2/react-and-spring-data-rest-basic
 

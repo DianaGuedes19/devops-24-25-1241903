@@ -7,7 +7,7 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 
 
-RUN git clone https://github.com/vapreace/devops-23-24-JPE-PSM-1231832.git .
+RUN git clone https://github.com/DianaGuedes19/devops-24-25-1241903 .
 
 WORKDIR /usr/src/app/CA2/Part2/react-and-spring-data-rest-basic
 
