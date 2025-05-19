@@ -32,6 +32,15 @@
 22. [Version 1: Building the Chat Server Inside Docker](#version-1-building-the-chat-server-inside-docker)
 23. [Version 2: Building the Chat Server Outside Docker](#version-2-building-the-chat-server-outside-docker)
 24. [Conclusion](#conclusion-part3)
+25. [CA2 - Part 4: Containers with Docker: Technical Report](#ca2---part-4-containers-with-docker-technical-report) 
+26. [Introduction](#introduction-1)
+27. [DB Dockerfile](#db-dockerfile)
+28. [Web Dockerfile](#web-dockerfile)
+29. [Docker Compose](#docker-compose)
+30. [Tag and Push Images](#tag-and-push-images)
+31. [Working with Volumes](#working-with-volumes)
+32. [Alternative Deployment (Heroku)](#alternative-deployment-heroku)
+33. [Conclusion](#conclusion-part-4)
 
 ---
 
@@ -1186,7 +1195,7 @@ Once released, the application and H2 service become accessible at the Heroku-ge
 
 ---
 
-## Conclusion
+## Conclusion Part 4
 
 In this project I:
 
@@ -1205,4 +1214,3 @@ In this project I:
 - **Explored** an alternative Heroku deployment using both Git and the Container Registry
 
 This workflow illustrates end-to-end container lifecycle management—from writing Dockerfiles and Compose configs to persisting data, tagging/pushing images, and even deploying to a cloud PaaS. It reinforces best practices for reproducible, maintainable application deployments.
-```
