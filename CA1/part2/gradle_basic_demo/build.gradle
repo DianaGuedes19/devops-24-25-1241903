@@ -28,6 +28,16 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
 
 }
+
+test {
+    // diz ao Gradle para usar o JUnit Platform (p/ JUnit 5)
+    useJUnitPlatform()
+
+    // força geração do XML que o Jenkins espera
+    reports {
+        junitXml.required.set(true)
+        html.required.set(false)
+    }
  
 
 // Define the main class for the application
