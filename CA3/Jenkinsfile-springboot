@@ -1,0 +1,81 @@
+pipeline {
+  agent any
+
+  environment {
+    DOCKER_CREDENTIALS_ID = 'dockerhub-creds-id'                      // ID da credential em Jenkins
+    DOCKER_IMAGE          = 'dianaguedes/springboot-app'              // nome do repo no Docker Hub
+    DOCKER_REGISTRY       = 'https://index.docker.io/v1/'             // endpoint Docker Hub
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        echo 'Checking out from repository'
+        git branch: 'main', url: 'https://github.com/DianaGuedes19/devops-24-25-1241903.git'
+      }
+    }
+
+    stage('Assemble') {
+      steps {
+        dir('CA1/part2/spring-boot-app') {
+          echo 'Assembling Spring Boot app...'
+          sh 'chmod +x gradlew'
+          sh './gradlew clean assemble'
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        dir('CA1/part2/spring-boot-app') {
+          echo 'Running unit tests...'
+          sh './gradlew test'
+          junit '**/build/test-results/**/*.xml'
+        }
+      }
+    }
+
+    stage('Javadoc') {
+      steps {
+        dir('CA1/part2/spring-boot-app') {
+          echo 'Generating Javadoc...'
+          sh './gradlew javadoc'
+          publishHTML([
+            reportDir:   'build/docs/javadoc',
+            reportFiles: 'index.html',
+            reportName:  'Javadoc'
+          ])
+        }
+      }
+    }
+
+    stage('Archive') {
+      steps {
+        dir('CA1/part2/spring-boot-app') {
+          echo 'Archiving WAR...'
+          archiveArtifacts artifacts: 'build/libs/*.war', fingerprint: true
+        }
+      }
+    }
+
+    stage('Publish Image') {
+      steps {
+        dir('CA1/part2/spring-boot-app') {
+          echo 'Building and pushing Docker image...'
+          script {
+            def img = docker.build("${env.DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+            docker.withRegistry(env.DOCKER_REGISTRY, env.DOCKER_CREDENTIALS_ID) {
+              img.push()
+            }
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      cleanWs()
+    }
+  }
+}
