@@ -55,10 +55,13 @@ ENTRYPOINT ["java","-jar","app.jar"]
 
     stage('Javadoc') {
       steps {
-        dir('CA1/part3/react-and-spring-data-rest-basic') {
-          echo 'Generating Javadoc...'
+        dir('CA1/part2/react-and-spring-data-rest-basic') {
+          echo 'Generating Javadoc…'
           sh './gradlew javadoc'
-          publishHTML([
+          publishHTML(target: [
+            allowMissing: false,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
             reportDir:   'build/docs/javadoc',
             reportFiles: 'index.html',
             reportName:  'Javadoc'
