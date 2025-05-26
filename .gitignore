@@ -4,11 +4,12 @@
 ### Java ###
 # Compiled class file
 
+# Ignorar JARs gerados pelo Gradle (build/libs), mas não o wrapper
+CA1/part2/gradle_basic_demo/build/libs/*.jar
+
 # Não ignorar o Gradle Wrapper JAR
 !CA1/part2/gradle_basic_demo/gradle/wrapper/gradle-wrapper.jar
 
-# Depois vem a regra genérica que apanha todos os jars
-*.jar
 
 *.class
 
