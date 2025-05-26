@@ -29,15 +29,7 @@ dependencies {
 
 }
 
-test {
-    // diz ao Gradle para usar o JUnit Platform (p/ JUnit 5)
-    useJUnitPlatform()
 
-    // força geração do XML que o Jenkins espera
-    reports {
-        junitXml.required.set(true)
-        html.required.set(false)
-    }
  
 
 // Define the main class for the application
@@ -97,3 +89,12 @@ task zip(type: Zip) {
     destinationDirectory = file('build')
     archiveFileName = 'src_backup.zip'
 }
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+    reports {
+        junitXml.required.set(true)   // gerar XML para o Jenkins
+        html.required.set(false)      // desativar HTML
+    }
+}
+
