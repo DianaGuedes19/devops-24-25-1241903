@@ -1,0 +1,36 @@
+pipeline {
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        echo 'Checking out from repository'
+        git url: 'https://github.com/DianaGuedes19/devops-24-25-1241903.git', branch: 'main'
+      }
+    }
+    stage('Assemble') {
+      steps {
+           dir('CA1/part2/gradle_basic_demo') {
+           echo 'Assembling...'
+            sh 'chmod +x gradlew'
+            sh './gradlew clean assemble'
+                      }
+                  }
+    }
+    stage('Test') {
+       steps {
+         dir('CA1/part2/gradle_basic_demo') {
+         echo 'Running Tests...'
+         sh './gradlew test'
+         junit 'build/test-results/test/*.xml'
+                      }
+                  }
+    }
+    stage('Archive') {
+      steps {
+        dir('CA1/part2/gradle_basic_demo') {
+        echo 'Archiving artifacts...'
+         archiveArtifacts artifacts: 'build/libs/*.jar', allowEmptyArchive: true
+                      }
+                  }
+  }
+}
