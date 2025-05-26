@@ -47,4 +47,18 @@ task copyJar(type: Copy) {
 task cleanFrontEnd(type: Delete) {
 	delete 'src/main/resources/static/built'
 }
+
+test {
+	useJUnitPlatform()
+	reports {
+		junitXml.required.set(true)
+		html.required.set(false)
+	}
+}
+
+// (Opcional) Garante que o Javadoc será gerado
+tasks.withType(Javadoc) {
+	// podes customizar aqui se quiseres
+}
+
 clean.dependsOn cleanFrontEnd
