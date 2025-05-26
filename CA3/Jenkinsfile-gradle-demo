@@ -21,7 +21,7 @@ pipeline {
          dir('CA1/part2/gradle_basic_demo') {
          echo 'Running Tests...'
          sh './gradlew test'
-         junit 'build/test-results/test/*.xml'
+         junit '**/build/test-results/**/*.xml'
                       }
                   }
     }
@@ -29,7 +29,7 @@ pipeline {
       steps {
         dir('CA1/part2/gradle_basic_demo') {
         echo 'Archiving artifacts...'
-         archiveArtifacts artifacts: 'build/libs/*.jar', allowEmptyArchive: true
+         archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
                       }
                   }
   }
