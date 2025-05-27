@@ -1,2 +1,9 @@
-FROM tomcat:9.0-jdk11
-COPY build/libs/*.war /usr/local/tomcat/webapps/app.war
+FROM jenkins/jenkins:lts
+USER root
+
+RUN apt-get update \
+ && apt-get install -y docker.io \
+ && rm -rf /var/lib/apt/lists/*
+
+USER jenkins
+
