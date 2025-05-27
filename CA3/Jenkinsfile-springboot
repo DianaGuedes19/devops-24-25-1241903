@@ -21,13 +21,14 @@ pipeline {
         dir('CA1/part3/react-and-spring-data-rest-basic') {
           echo 'Writing Dockerfile...'
           script {
-            writeFile file: 'Dockerfile', text: '''
-FROM eclipse-temurin:17-alpine
-WORKDIR /app
-COPY build/libs/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
-'''
+   writeFile file: 'Dockerfile', text: '''
+   FROM eclipse-temurin:17-jdk
+   WORKDIR /app
+   COPY build/libs/*.jar app.jar
+   EXPOSE 8080
+   ENTRYPOINT ["java","-jar","app.jar"]
+   '''
+
           }
         }
       }
